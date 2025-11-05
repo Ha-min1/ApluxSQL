@@ -2,5 +2,4 @@
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
 	"postCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apache2 mariadb-server php php-mysqli git-lfs && curl -L https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar xvz && sudo mv ngrok /usr/local/bin/",
-
-"postStartCommand": "{ sudo service mariadb start; sudo service apache2 start; ngrok config add-authtoken $NGROK_AUTHTOKEN; } > ~/command.log 2>&1 && ngrok http 80 --domain=polliwog-fast-vaguely.ngrok-free.app > ~/ngrok.log 2>&1 &"}
+"postStartCommand": "bash -c 'set -x; sudo service mariadb start; sudo service apache2 start; ngrok config add-authtoken $NGROK_AUTHTOKEN; ngrok http 80 --domain=polliwog-fast-vaguely.ngrok-free.app > /workspaces/ApluxSQL/ngrok.log 2>&1 &' > /workspaces/ApluxSQL/startup.log 2>&1"}
