@@ -6,16 +6,12 @@ using System.Text;
 public class DBManager : MonoBehaviour
 {
     // 로컬 PHP API 주소
-    private const string API_URL = "https://ubiquitous-tribble-5grv6pgjjpqphv57v-80.app.github.dev/api/";
+    private const string API_URL = "https://polliwog-fast-vaguely.ngrok-free.app/api/";
 
     // Unity에서 보낼 데이터 구조체 [수정됨]
     [System.Serializable]
     public class LogData
     {
-        // public float angle;      // [제거됨] 스티어링 휠 각도
-        // public float pressure;   // [제거됨] 로드 셀 압력
-        // public bool crash;       // [제거됨] 충돌 여부
-
         public int score;               // [새로 추가] 최종 점수
         public string accidentDetails;  // [새로 추가] 사고 내역 (예: "Wall Crash", "No Accident")
     }
@@ -34,7 +30,6 @@ public class DBManager : MonoBehaviour
         StartCoroutine(SendPostRequest(jsonBody));
     }
 
-    // (SendPostRequest 코루틴은 변경할 필요가 없습니다. 그대로 사용합니다.)
     private IEnumerator SendPostRequest(string jsonBody)
     {
         // UnityWebRequest 객체 생성
