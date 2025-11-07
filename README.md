@@ -18,6 +18,11 @@ sudo service apache2 start
 # 데이터베이스 접근
 sudo mysql
 
+# 새 터미널에서 가동
+
+ngrok http 80 --domain=polliwog-fast-vaguely.ngrok-free.app
+
+
 # 서버 상태 확인 (정상 작동 시 "is running" 또는 "active" 확인)
 sudo service mariadb status
 sudo service apache2 status
