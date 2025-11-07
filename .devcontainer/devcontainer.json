@@ -1,5 +1,7 @@
+// ...existing code...
 {
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "postCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apache2 mariadb-server php php-mysqli git-lfs && curl -L https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar xvz && sudo mv ngrok /usr/local/bin/",
-  "postStartCommand": "bash -c \"set -x; sudo service mariadb start; sudo sed -i 's|DocumentRoot /var/www/html|DocumentRoot /workspaces/AplusSQL|' /etc/apache2/sites-available/000-default.conf; sudo service apache2 start; ngrok config add-authtoken $NGROK_AUTHTOKEN\" > /workspaces/AplusSQL/startup.log 2>&1"
+  "postStartCommand": "bash -lc \"set -x; sudo service mariadb start; sudo sed -i 's|DocumentRoot /var/www/html|DocumentRoot /workspaces/ApluxSQL|' /etc/apache2/sites-available/000-default.conf; printf '\\n<Directory /workspaces/ApluxSQL>\\n    Options Indexes FollowSymLinks\\n    AllowOverride All\\n    Require all granted\\n</Directory>\\n' | sudo tee -a /etc/apache2/sites-available/000-default.conf; sudo service apache2 start; chmod 755 /workspaces/ApluxSQL /workspaces/ApluxSQL/api; chmod 644 /workspaces/ApluxSQL/api/save_log.php; ngrok config add-authtoken $NGROK_AUTHTOKEN > /workspaces/ApluxSQL/startup.log 2>&1\""
 }
+// ...existing code...

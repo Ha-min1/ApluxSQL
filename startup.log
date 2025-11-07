@@ -1,10 +1,1 @@
-+ sudo service mariadb start
- * Starting MariaDB database server mariadbd
-   ...done.
-+ sudo service apache2 start
- * Starting Apache httpd web server apache2
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1. Set the 'ServerName' directive globally to suppress this message
- * 
-+ ngrok config add-authtoken 2z8SRM8Xc4r2p3shxh0GZ0KCU3S_4nkvYc5LDpxpJ5L78k1uH
 Authtoken saved to configuration file: /home/vscode/.config/ngrok/ngrok.yml
-+ ngrok http 80 --domain=polliwog-fast-vaguely.ngrok-free.app
