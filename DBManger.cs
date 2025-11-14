@@ -42,22 +42,7 @@ public class DBManager : MonoBehaviour
     }
 
  /*   //Test를 위한 임시 메서드 추가함
-void Start()
-    {
-        // 씬이 완전히 로드되고 2초 후에 테스트를 실행합니다.
-        StartCoroutine(RunQuickTest());
-    }
 
-    private IEnumerator RunQuickTest()
-    {
-        // 2초 대기 (Awake가 확실히 끝난 후 실행)
-        yield return new WaitForSeconds(2f);
-
-        Debug.Log("--- Starting DB Test ---");
-        // 스크립트의 static 함수를 호출하여 테스트 로그 전송
-        DBManager.SaveGameLog(999, "This is a quick test log.");
-    }
-    //이 주속 및 위의 주석은 건드리지 말것
  테스트가 정상적으로 종료되었으므로 주석처리함
 */
 
@@ -76,45 +61,57 @@ void Start()
         }
     }
 
+    public static void SaveGameLog(
+    int finalScore, 
+    string accidentDetails, 
+    System.Action<int, string> callback)
+{
+    if (_instance != null)
+    {
+        _instance.SavePlayLog(finalScore, accidentDetails, callback);
+    }
+    else
+    {
+        Debug.LogWarning("DBManager instance not found!");
+        callback?.Invoke(-1, "DBManager instance not found");
+    }
+}
+
     // 실제 데이터 저장 처리
-    private void SavePlayLog(int finalScore, string accidentDetails)
+    private void SavePlayLog(
+    int finalScore, 
+    string accidentDetails,
+    System.Action<int, string> callback)
+{
+    LogData log = new LogData
     {
-        LogData log = new LogData
-        {
-            score = finalScore,
-            accidentDetails = accidentDetails
-        };
+        score = finalScore,
+        accidentDetails = accidentDetails
+    };
 
-        string jsonBody = JsonUtility.ToJson(log);
-        StartCoroutine(SendPostRequest(jsonBody));
-    }
+    string jsonBody = JsonUtility.ToJson(log);
+    StartCoroutine(SendPostRequest(jsonBody, callback));
+}
 
-    private IEnumerator SendPostRequest(string jsonBody)
+    private IEnumerator SendPostRequest(string jsonBody, System.Action<int, string> callback)
+{
+    using (UnityWebRequest www = new UnityWebRequest(API_URL, "POST"))
     {
-        using (UnityWebRequest www = new UnityWebRequest(API_URL, "POST"))
-        {
-            // 요청 본문 설정
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
-            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = new DownloadHandlerBuffer();
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
 
-            // 헤더 설정
-            www.SetRequestHeader("Content-Type", "application/json");
-            www.SetRequestHeader("Accept", "application/json");
+        www.SetRequestHeader("Content-Type", "application/json");
+        www.SetRequestHeader("Accept", "application/json");
 
-            // 타임아웃 설정 (10초)
-            www.timeout = 10;
+        www.timeout = 10;
 
-            Debug.Log($"Sending request to: {API_URL}");
-            Debug.Log($"Request data: {jsonBody}");
+        yield return www.SendWebRequest();
 
-            // 요청 전송 및 대기
-            yield return www.SendWebRequest();
-
-            // 응답 처리
-            ProcessResponse(www);
-        }
+        HandleResponse(www, callback);
     }
+}
+
 
     private void ProcessResponse(UnityWebRequest www)
     {
@@ -140,37 +137,33 @@ void Start()
         }
     }
 
-    private void HandleSuccessResponse(UnityWebRequest www)
+    private void HandleResponse(UnityWebRequest www, System.Action<int, string> callback)
+{
+    if (www.result != UnityWebRequest.Result.Success)
     {
-        string responseText = www.downloadHandler.text;
-        Debug.Log($"Raw Response: {responseText}");
+        callback?.Invoke(-1, www.error);
+        return;
+    }
 
-        try
+    string responseText = www.downloadHandler.text;
+
+    try
+    {
+        ApiResponse response = JsonUtility.FromJson<ApiResponse>(responseText);
+
+        if (response != null && response.status == "success")
         {
-            // PHP 응답 파싱 시도
-            ApiResponse response = JsonUtility.FromJson<ApiResponse>(responseText);
-
-            if (response != null)
-            {
-                if (response.status == "success")
-                {
-                    Debug.Log($"✅ Data saved successfully! ID: {response.inserted_id}");
-                }
-                else
-                {
-                    Debug.LogWarning($"⚠ Server returned error: {response.message}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("⚠ Failed to parse response JSON");
-            }
+            callback?.Invoke(response.inserted_id, response.message);
         }
-        catch (System.Exception e)
+        else
         {
-            Debug.LogWarning($"⚠ Response parsing error: {e.Message}");
-            Debug.Log($"Raw response was: {responseText}");
+            callback?.Invoke(-1, response?.message ?? "Unknown server error");
         }
     }
+    catch (System.Exception e)
+    {
+        callback?.Invoke(-1, "JSON parse error: " + e.Message);
+    }
 }
-:w
+
+}
