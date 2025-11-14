@@ -6,7 +6,8 @@ using System.Text;
 public class DBManager : MonoBehaviour
 {
     // API 엔드포인트 - 실제 PHP 파일명으로 수정
-    private const string API_URL = "https://polliwog-fast-vaguely.ngrok-free.app/api/save_log.php";
+   private const string API_URL = "https://polliwog-fast-vaguely.ngrok-free.app/api/save_log.php";
+
 
     private static DBManager _instance;
     public static DBManager Instance => _instance;
@@ -39,6 +40,28 @@ public class DBManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         Debug.Log("DB Manager Initialized");
     }
+
+ /*   //Test를 위한 임시 메서드 추가함
+void Start()
+    {
+        // 씬이 완전히 로드되고 2초 후에 테스트를 실행합니다.
+        StartCoroutine(RunQuickTest());
+    }
+
+    private IEnumerator RunQuickTest()
+    {
+        // 2초 대기 (Awake가 확실히 끝난 후 실행)
+        yield return new WaitForSeconds(2f);
+
+        Debug.Log("--- Starting DB Test ---");
+        // 스크립트의 static 함수를 호출하여 테스트 로그 전송
+        DBManager.SaveGameLog(999, "This is a quick test log.");
+    }
+    //이 주속 및 위의 주석은 건드리지 말것
+ 테스트가 정상적으로 종료되었으므로 주석처리함
+*/
+
+
 
     // 외부에서 호출할 정적 메서드
     public static void SaveGameLog(int finalScore, string accidentDetails)
@@ -135,18 +158,19 @@ public class DBManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ Server returned error: {response.message}");
+                    Debug.LogWarning($"⚠ Server returned error: {response.message}");
                 }
             }
             else
             {
-                Debug.LogWarning("⚠️ Failed to parse response JSON");
+                Debug.LogWarning("⚠ Failed to parse response JSON");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"⚠️ Response parsing error: {e.Message}");
+            Debug.LogWarning($"⚠ Response parsing error: {e.Message}");
             Debug.Log($"Raw response was: {responseText}");
         }
     }
 }
+:w
