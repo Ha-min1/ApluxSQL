@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $logId = intval($_GET['id']);
     
     // (6) 로그 조회 쿼리
-    $stmt = $conn->prepare("SELECT id, score, accidentDetails, created_at FROM play_log WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, score, accidentDetails, log_time FROM play_log WHERE id = ?");
     $stmt->bind_param("i", $logId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'id' => $log['id'],
                 'score' => $log['score'],
                 'accidentDetails' => $log['accidentDetails'],
-                'created_at' => $log['created_at']
+                'created_at' => $log['log_time']  // log_time을 created_at으로 매핑
             ]
         ]);
     } else {
